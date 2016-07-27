@@ -92,24 +92,28 @@ class Game:
     elif(move == 'split'):
       if(len(hand.cards) == 2 and hand.cards[0].card == hand.cards[1].card):
         return True
+    elif(move == 'help'):
+      return True
+    else:
+      return False
 
   def play(self):
-    self.setBankroll(self.startingBank)
+    self.setBankroll(self.startingBank) 
     quitFlag = False 
-    while(quitFlag == False):
+    while(quitFlag == False): # Start game loop
       print("------Starting round-------")
       self.printBank()
       self.startRound()
       self.deal()
       print('Dealer\'s Hand: %s' % self.dealer.hiddenstr())
-      while(self.playersInRound and not quitFlag):
+      while(self.playersInRound and not quitFlag): # Rotate through players 
         player, hand = self.playersInRound[0]
         hand_num = 0
-        while(hand_num < len(player.hand) and not quitFlag):
+        while(hand_num < len(player.hand) and not quitFlag): # Rotate through hands
           hand = player.hand[hand_num]
           move = player.doMove(hand)
-          move = move.strip()
-          while(not quitFlag and not self.isLegal(move, hand, player)):
+          move = move.strip().lower()
+          while(not quitFlag and not self.isLegal(move, hand, player)): # Get legal move
             if(type(player) == human_mod.Human):
               print("Illegal Move. Try Again")
             else:
@@ -117,7 +121,8 @@ class Game:
               self.playersInRound.remove(player)
               break
             move = player.doMove(hand)
-            move = move.strip()
+            move = move.strip().lower()
+          # We have a legal move -- play it
           if(move == 'hit'):
             card = self.deck.drawCard()
             hand.addCard(card)
@@ -158,9 +163,12 @@ class Game:
               print('%s: hand busted' % player.name)
               self.playersBusted.append((player, hand))
             hand_num += 1
+          elif(move == 'help'):
+            print('cmds: ["hit", "stay", "split", "double down", "quit", "help"]')
           elif(move == 'quit'):
             quitFlag = True
             break
+
       # Update Winnings
       if((self.dealer, self.dealer.hand[0]) not in self.playersBusted):
         dealerhand = self.dealer.hand[0]
@@ -185,7 +193,7 @@ class Game:
             if(not hand.score):
               continue
             if(type(player) != dealer_mod.Dealer):
-              for hand in player.hand: 
+             # for hand in player.hand: 
                 print('%s \'s %s beat the dealer' % (player.name, hand.handstr()))
                 player.money += 2*player.bet
       #Anyone still have money?
